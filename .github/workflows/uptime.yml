@@ -41,13 +41,9 @@ jobs:
             title="🔴 $host check failing"
             existing=$(echo "$open_issues" | awk -F'\t' -v t="$title" '$2 == t {print $1; exit}')
             if [ -z "$existing" ]; then
-              gh issue create --repo "$REPO" --label uptime \
-                --title "$title" \
-                --body "**$host** is failing its check as of $(date -u '+%Y-%m-%d %H:%M UTC').
-
-Reason: $reason
-
-Runbook: see \`~/Code/ccc/playbooks/incident-response.md\` and the tenant map in \`~/Code/ccc/infrastructure/hosting.md\`. This issue closes automatically when the check recovers."
+              body=$(printf '**%s** is failing its check as of %s.\n\nReason: %s\n\nRunbook: `~/Code/ccc/playbooks/incident-response.md`; tenant map: `~/Code/ccc/infrastructure/hosting.md`. This issue closes automatically when the check recovers.' \
+                "$host" "$(date -u '+%Y-%m-%d %H:%M UTC')" "$reason")
+              gh issue create --repo "$REPO" --label uptime --title "$title" --body "$body"
               echo "opened issue for $host"
             else
               echo "issue already open for $host (#$existing)"

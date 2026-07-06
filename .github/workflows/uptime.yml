@@ -1,0 +1,66 @@
+name: Uptime
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # every 30 min (quota-friendly for a private repo; use */15 if made public)
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run checks
+        id: checks
+        run: |
+          FAILURES_FILE=failures.txt ./scripts/check.sh || true
+
+      - name: Open / close alert issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -uo pipefail
+          # one alert issue per failing host, closed automatically on recovery
+          open_issues=$(gh issue list --repo "$REPO" --state open --label uptime --json number,title \
+            --jq '.[] | "\(.number)\t\(.title)"')
+
+          # 1. failures -> ensure an open issue exists
+          while IFS=$'\t' read -r host reason; do
+            [ -z "$host" ] && continue
+            title="🔴 $host check failing"
+            existing=$(echo "$open_issues" | awk -F'\t' -v t="$title" '$2 == t {print $1; exit}')
+            if [ -z "$existing" ]; then
+              gh issue create --repo "$REPO" --label uptime \
+                --title "$title" \
+                --body "**$host** is failing its check as of $(date -u '+%Y-%m-%d %H:%M UTC').
+
+Reason: $reason
+
+Runbook: see \`~/Code/ccc/playbooks/incident-response.md\` and the tenant map in \`~/Code/ccc/infrastructure/hosting.md\`. This issue closes automatically when the check recovers."
+              echo "opened issue for $host"
+            else
+              echo "issue already open for $host (#$existing)"
+            fi
+          done < failures.txt
+
+          # 2. recoveries -> close issues whose host is no longer failing
+          echo "$open_issues" | while IFS=$'\t' read -r num title; do
+            [ -z "$num" ] && continue
+            host=$(echo "$title" | sed -E 's/^🔴 //; s/ check failing$//')
+            if ! cut -f1 failures.txt | grep -qx "$host"; then
+              gh issue close "$num" --repo "$REPO" \
+                --comment "✅ Recovered at $(date -u '+%Y-%m-%d %H:%M UTC') — check passing again."
+              echo "closed issue #$num ($host recovered)"
+            fi
+          done

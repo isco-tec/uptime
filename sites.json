@@ -1,0 +1,25 @@
+{
+  "_comment": "Source of truth for expected sites: ~/Code/ccc/infrastructure/domains.md. body = case-insensitive substring that must appear in the response. api=true relaxes status to <500. allow_hosts = extra final hosts allowed after redirects.",
+  "sites": [
+    { "url": "https://guac-a-mole.iscovici.com", "body": "guac" },
+    { "url": "https://app.catalogist.app/healthz", "api": true },
+    { "url": "https://commitmentor.app", "body": "commitmentor" },
+    { "url": "https://web.commitmentor.app", "body": "commitmentor", "allow_hosts": ["commitmentor.app"] },
+    { "url": "https://fermentfulness.com", "body": "ferment" },
+    { "url": "https://tinytiny.tools", "body": "tiny" },
+    { "url": "https://cv.iscovici.com", "body": "iscovici" },
+    { "url": "https://slothisticated.com", "body": "slothisticated" },
+    { "url": "https://api.slothisticated.com", "api": true },
+    { "url": "https://vibezilla.games", "body": "vibezilla" },
+    { "url": "https://api.vibezilla.games", "api": true },
+    { "url": "https://neonix.iscovici.com", "body": "neonix" },
+    { "url": "https://neonix-api.iscovici.com", "api": true },
+    { "url": "https://scorezilla.dev", "body": "scorezilla" },
+    { "url": "https://api.scorezilla.dev", "api": true },
+    { "url": "https://dashboard.scorezilla.dev", "api": true },
+    { "url": "https://kovasauna.com", "body": "kova" },
+    { "url": "https://labs.iscovici.com", "body": "iscovici" },
+    { "url": "https://intentrun.art", "body": "intentrun" },
+    { "url": "https://api.intentrun.art", "api": true }
+  ]
+}

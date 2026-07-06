@@ -2,7 +2,7 @@ name: Uptime
 
 on:
   schedule:
-    - cron: "*/30 * * * *"   # every 30 min (quota-friendly for a private repo; use */15 if made public)
+    - cron: "0 * * * *"   # hourly while the repo is private (~720 min/mo ≈ $5.8 of quota); flip repo to PUBLIC for free minutes and raise to */15
   workflow_dispatch:
 
 permissions:

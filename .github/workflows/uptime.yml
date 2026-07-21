@@ -7,7 +7,7 @@ on:
 
 permissions:
   issues: write
-  contents: read
+  contents: write   # status page commits to gh-pages
 
 concurrency:
   group: uptime
@@ -23,7 +23,7 @@ jobs:
       - name: Run checks
         id: checks
         run: |
-          FAILURES_FILE=failures.txt ./scripts/check.sh || true
+          FAILURES_FILE=failures.txt ./scripts/check.sh | tee results.txt || true
 
       - name: Open / close alert issues
         env:
@@ -60,3 +60,16 @@ jobs:
               echo "closed issue #$num ($host recovered)"
             fi
           done
+
+      - name: Publish status page (gh-pages)
+        run: |
+          set -uo pipefail
+          git config user.name "uptime-bot"
+          git config user.email "uptime-bot@users.noreply.github.com"
+          git fetch -q origin gh-pages
+          git worktree add -q pages origin/gh-pages
+          git -C pages checkout -qB gh-pages
+          ./scripts/render_page.sh results.txt > pages/index.html
+          git -C pages add index.html
+          git -C pages commit -q -m "status: $(date -u '+%Y-%m-%d %H:%M UTC')" || exit 0
+          git -C pages push -q origin gh-pages

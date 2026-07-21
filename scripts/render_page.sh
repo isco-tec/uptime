@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# render_page.sh <results.txt> — emit the status page HTML to stdout.
+# results.txt = check.sh stdout: "OK    host (200)" / "FAIL  host — reason".
+set -euo pipefail
+RESULTS="$1"
+NOW="$(date -u '+%Y-%m-%d %H:%M UTC')"
+
+esc() { sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g'; }
+
+FAILS=$(grep -c '^FAIL' "$RESULTS" || true)
+TOTAL=$(grep -cE '^(OK|FAIL)' "$RESULTS" || true)
+if [ "$FAILS" -eq 0 ]; then
+  BANNER="✅ All systems operational"; BCLASS="ok"
+else
+  BANNER="🔴 $FAILS of $TOTAL checks failing"; BCLASS="fail"
+fi
+
+cat <<HEAD
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="300">
+<title>Portfolio Status</title>
+<style>
+  :root { color-scheme: light dark;
+    --bg:#f6f8fa; --card:#fff; --text:#1f2328; --muted:#656d76; --line:#d0d7de;
+    --ok:#1a7f37; --fail:#cf222e; }
+  @media (prefers-color-scheme: dark) { :root {
+    --bg:#0d1117; --card:#161b22; --text:#e6edf3; --muted:#8b949e; --line:#30363d;
+    --ok:#3fb950; --fail:#f85149; } }
+  * { box-sizing:border-box; margin:0 }
+  body { font:16px/1.5 -apple-system,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg); color:var(--text); max-width:640px; margin:0 auto; padding:2rem 1rem }
+  h1 { font-size:1.3rem; margin-bottom:.25rem }
+  .sub { color:var(--muted); font-size:.85rem; margin-bottom:1.25rem }
+  .banner { padding:.7rem 1rem; border-radius:8px; font-weight:600; margin-bottom:1.25rem;
+    border:1px solid var(--line); background:var(--card) }
+  .banner.ok { color:var(--ok) } .banner.fail { color:var(--fail) }
+  ul { list-style:none } li { display:flex; align-items:baseline; gap:.6rem;
+    padding:.55rem .75rem; border:1px solid var(--line); border-radius:8px;
+    margin-bottom:.4rem; background:var(--card) }
+  .dot { flex:none; width:.6rem; height:.6rem; border-radius:50%; align-self:center }
+  .dot.ok { background:var(--ok) } .dot.fail { background:var(--fail) }
+  a { color:inherit; text-decoration:none } a:hover { text-decoration:underline }
+  .why { color:var(--fail); font-size:.8rem; margin-left:auto; text-align:right }
+  .code { color:var(--muted); font-size:.8rem; margin-left:auto }
+  footer { color:var(--muted); font-size:.8rem; margin-top:1.5rem }
+  footer a { text-decoration:underline }
+</style>
+</head>
+<body>
+<h1>Portfolio Status</h1>
+<div class="sub">Last check: $NOW · runs every 15 minutes</div>
+<div class="banner $BCLASS">$BANNER</div>
+<ul>
+HEAD
+
+grep -E '^(OK|FAIL)' "$RESULTS" | while read -r line; do
+  if [[ "$line" == OK* ]]; then
+    host=$(echo "$line" | awk '{print $2}')
+    code=$(echo "$line" | sed -E 's/.*\(([0-9]+)\).*/\1/')
+    printf '  <li><span class="dot ok"></span><a href="https://%s">%s</a><span class="code">%s</span></li>\n' \
+      "$host" "$host" "$code"
+  else
+    host=$(echo "$line" | awk '{print $2}')
+    reason=$(echo "$line" | sed -E 's/^FAIL +[^ ]+ — //' | esc)
+    printf '  <li><span class="dot fail"></span><a href="https://%s">%s</a><span class="why">%s</span></li>\n' \
+      "$host" "$host" "$reason"
+  fi
+done
+
+cat <<FOOT
+</ul>
+<footer>
+  Liveness + redirect sanity + content checks ·
+  <a href="https://github.com/isco-tec/uptime/issues?q=label%3Auptime">incident history</a> ·
+  <a href="https://github.com/isco-tec/uptime">source</a>
+</footer>
+</body>
+</html>
+FOOT

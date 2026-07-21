@@ -37,10 +37,9 @@ GitHub notification emails are enabled for issues. That's the whole alert stack.
 
 ## Notes
 
-- Currently **private** with a 30-min cron (each run costs ~1 Actions minute from
-  the shared private-repo quota — ~1,450 min/month at this cadence). The repo
-  contains only public URLs and brand words, so it is safe to flip to **public**
-  (Settings → General → Change visibility) — public repos get unlimited Actions
-  minutes, and you can then raise the cadence to `*/15`.
+- **Public** since 2026-07-21 (cost audit): Actions minutes are free, cadence is
+  `*/15`. Verified before flipping: full history contains only public URLs and
+  brand words; run logs show only OK/FAIL lines with runner-masked tokens; alert
+  issues carry no internal paths.
 - Flappy sites: curl already retries twice per check. If a site flaps, consider
   raising `-m 20` or requiring two consecutive failures before alerting.

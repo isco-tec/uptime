@@ -4,6 +4,9 @@ Standing uptime + correctness monitoring for every production surface in the
 portfolio. Runs on GitHub Actions every 15 minutes — no servers, no external
 accounts, free on a public repo.
 
+**Live status page: https://isco-tec.github.io/uptime/** (regenerated on every
+check run via `scripts/render_page.sh` → `gh-pages`).
+
 ## What it checks (better than a ping)
 
 For each site in [sites.json](sites.json):

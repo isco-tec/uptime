@@ -3,6 +3,7 @@
   "sites": [
     { "url": "https://guac-a-mole.iscovici.com", "body": "guac" },
     { "url": "https://app.catalogist.app/healthz", "api": true },
+    { "url": "https://app.catalogist.app/readyz", "api": true, "body": "\"status\":\"ok\"" },
     { "url": "https://commitmentor.app", "body": "commitmentor" },
     { "url": "https://web.commitmentor.app", "body": "commitmentor", "allow_hosts": ["commitmentor.app"] },
     { "url": "https://fermentfulness.com", "body": "ferment" },

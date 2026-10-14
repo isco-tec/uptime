@@ -19,7 +19,7 @@
     { "url": "https://api.scorezilla.dev", "api": true },
     { "url": "https://dashboard.scorezilla.dev", "api": true },
     { "url": "https://kovasauna.com", "body": "kova" },
-    { "url": "https://labs.iscovici.com", "body": "iscovici" },
+    { "url": "https://labs.iscovici.com", "body": "iscovici", "allow_hosts": ["iscovici.com"] },
     { "url": "https://intentrun.art", "body": "intentrun" },
     { "url": "https://api.intentrun.art", "api": true }
   ]

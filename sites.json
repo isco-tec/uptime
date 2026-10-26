@@ -17,6 +17,7 @@
     { "url": "https://neonix-api.iscovici.com", "api": true },
     { "url": "https://scorezilla.dev", "body": "scorezilla" },
     { "url": "https://api.scorezilla.dev", "api": true },
+    { "url": "https://nyc.cloud.appwrite.io/v1/account?project=69c8f1430018eb9341f5", "api": true, "body": "general_unauthorized_scope" },
     { "url": "https://dashboard.scorezilla.dev", "api": true },
     { "url": "https://kovasauna.com", "body": "kova" },
     { "url": "https://labs.iscovici.com", "body": "iscovici", "allow_hosts": ["iscovici.com"] },

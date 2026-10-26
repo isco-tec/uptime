@@ -28,6 +28,15 @@ A failing check opens a GitHub issue (label `uptime`) titled
 **To get emailed:** Watch this repo (Watch → All activity), and make sure
 GitHub notification emails are enabled for issues. That's the whole alert stack.
 
+### Appwrite pause alarm (Guac-A-Mole)
+
+The `nyc.cloud.appwrite.io/v1/account?project=…` entry watches Guac-A-Mole's
+free Appwrite project, which Appwrite pauses after 7 days without *Console*
+activity (API traffic doesn't count) and deletes after 90 days paused. Awake,
+the call answers 401 `general_unauthorized_scope` (pass); paused, it answers
+403 `project_paused` (fail → issue "🔴 nyc.cloud.appwrite.io check failing").
+**Fix:** open the project in the Appwrite Console and restore it. No key is used.
+
 ## Operating it
 
 - **Add/remove a site:** edit [sites.json](sites.json). Keep it in sync with the
